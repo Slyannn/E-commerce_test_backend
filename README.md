@@ -21,7 +21,7 @@ venv\Scripts\activate
 source venv/bin/activate
 
 # Installer les dépendances
-pip install fastapi uvicorn[standard] sqlmodel python-jose[cryptography] passlib[bcrypt]
+pip install -r requirements.txt
 ```
 
 ### Démarrage du serveur
@@ -146,6 +146,12 @@ Le serveur sera accessible à l'adresse : `http://127.0.0.1:8000`
 - **Hash des mots de passe** : SHA-256
 - **JWT** : Pour l'authentification
 - **CORS** : Configuré pour permettre toutes les origines
+
+## 👤 Utilisateur admin par défaut
+
+> **La base de données contient un utilisateur par défaut :**
+> - **Email :** admin@test.com
+> - **Mot de passe :** admin
 
 ## 📝 Exemples d'utilisation
 
