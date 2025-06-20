@@ -1,7 +1,10 @@
 from sqlmodel import SQLModel, create_engine
+from dotenv import load_dotenv
+import os
 
-sqlite_file_name = "database.db"
-sqlite_url=f"sqlite:///{sqlite_file_name}"
+load_dotenv()
+
+sqlite_url=os.getenv("DATABASE_URL")
 
 engine = create_engine(sqlite_url)
 
