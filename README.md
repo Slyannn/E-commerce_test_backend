@@ -29,13 +29,13 @@ pip install -r requirements.txt
 Créez un fichier `.env` à la racine du projet avec le contenu suivant :
 
 ```env
-SECRET_KEY=change-me-very-secret-key
+SECRET_KEY=clé-secrete-test-technique
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 DATABASE_URL=sqlite:///database.db
 ```
 
-- **SECRET_KEY** : Clé secrète pour le JWT (changez-la en production)
+- **SECRET_KEY** : Clé secrète pour le JWT 
 - **ALGORITHM** : Algorithme utilisé pour le JWT
 - **ACCESS_TOKEN_EXPIRE_MINUTES** : Durée de validité du token (en minutes)
 - **DATABASE_URL** : URL de connexion à la base de données SQLite
