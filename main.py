@@ -4,7 +4,7 @@ from sqlmodel import Session, select
 from typing import List
 from models import Product, User, CartItem
 from database import create_db_and_tables, engine
-from auth import verify_password, create_access_token
+from auth import verify_password, create_access_token, hash_password
 
 app = FastAPI()
 
@@ -27,9 +27,18 @@ def insert_sample_products():
     with Session(engine) as session:
         if not session.exec(select(Product)).first():  # Pour éviter les doublons
             session.add_all([
+                User(email="admin@test.com", username="admin", password=hash_password("admin")),
                 Product(name="Chaussures", price=59.99, description="Chaussures de sport confortables"),
                 Product(name="T-shirt", price=19.99, description="T-shirt 100% coton"),
                 Product(name="Casquette", price=14.99, description="Casquette stylée pour l'été"),
+                Product(name="Jean", price=49.99, description="Jean classique en denim"),
+                Product(name="Sneakers", price=79.99, description="Sneakers tendance et confortables"),
+                Product(name="Pull", price=39.99, description="Pull chaud pour l'hiver"),
+                Product(name="Sac à dos", price=29.99, description="Sac à dos pratique pour tous les jours"),
+                Product(name="Montre", price=129.99, description="Montre élégante et précise"),
+                Product(name="Écharpe", price=24.99, description="Écharpe douce et chaude"),
+                Product(name="Gants", price=19.99, description="Gants confortables pour l'hiver"),
+                Product(name="Ceinture", price=34.99, description="Ceinture en cuir de qualité"),
             ])
             session.commit()
 
@@ -88,25 +97,24 @@ def add_to_cart(user_id: int = Body(...), product_id: int = Body(...), quantity:
         session.refresh(cart_item)
         return cart_item
 
-@app.post("/login")
-def login(username: str = Body(...), password: str = Body(...)):
+@app.post("/auth/login")
+def login(email: str = Body(...), password: str = Body(...)):
     with Session(engine) as session:
-        user = session.exec(select(User).where(User.username == username))
-        if not user or verify_password(password, User.password):
-            raise HTTPException(status_code=401, detail ="Iinvalid credentials")
-        token = create_access_token({"username":user.username, "user_id":user.id})
-        return {"access_token":token, "token_type":"bearer"}
-    
+        user = session.exec(select(User).where(User.email == email)).first()
+        if not user or not verify_password(password, user.password):
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+        token = create_access_token({"email": user.email, "user_id": user.id})
+        return {"token": token, "user": {"id": user.id, "email": user.email, "username": user.username}}
 
-@app.post("register")
-def register(username: str = Body(...), password: str = Body(...)):
-    with Session(engine) as session :
-        if session.exec(select(User).where(User.username == username)):
-            raise HTTPException(status_code=401, details="Username already taken")
-        user = User(username, password)
+@app.post("/auth/register")
+def register(email: str = Body(...), username: str = Body(...), password: str = Body(...)):
+    with Session(engine) as session:
+        existing_user = session.exec(select(User).where(User.email == email)).first()
+        if existing_user:
+            raise HTTPException(status_code=400, detail="Email already taken")
+        user = User(email=email, username=username, password=hash_password(password))
         session.add(user)
         session.commit()
-        session.refresh(user)   
-
-        return {"user_id":user.id,"username":user.username}
+        session.refresh(user)
+        return {"user_id": user.id, "user": {"id": user.id, "email": user.email, "username": user.username}}
     
